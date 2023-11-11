@@ -2,14 +2,15 @@ const holes = document.querySelectorAll('.hole');
 const moles = document.querySelectorAll('.mole');
 const startButton = document.querySelector('#start');
 // TODO: Add the missing query selectors:
-const score; // Use querySelector() to get the score element
-const timerDisplay; // use querySelector() to get the timer element.
+const score = document.querySelector('#score'); // Use querySelector() to get the score element
+const timerDisplay = document.querySelector('#timer'); // use querySelector() to get the timer element.
+const startHeader = document.getElementById('start-header');
 
 let time = 0;
 let timer;
 let lastHole = 0;
 let points = 0;
-let difficulty = "hard";
+let difficulty = "easy";
 
 /**
  * Generates a random integer within a range.
@@ -21,7 +22,7 @@ let difficulty = "hard";
  *
  */
 function randomInteger(min, max) {
-  // return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
@@ -41,7 +42,14 @@ function randomInteger(min, max) {
  */
 function setDelay(difficulty) {
   // TODO: Write your code here.
-  
+  if (difficulty === 'hard') {
+    return randomInteger(600, 1200);
+  } else if (difficulty === 'normal') {
+    return 1000;
+  } else {
+    //console.log('setDelay easy 1500');
+    return 1500;
+  }
 }
 
 /**
@@ -60,7 +68,14 @@ function setDelay(difficulty) {
  */
 function chooseHole(holes) {
   // TODO: Write your code here.
-
+  let index = randomInteger(0, 8);
+  const hole = holes[index];
+  //console.log('hole: ' + hole.getAttribute('id'));
+  if (hole === lastHole) {
+    return chooseHole(holes);
+  }
+  lastHole = hole;
+  return hole;
 }
 
 /**
@@ -85,7 +100,13 @@ function chooseHole(holes) {
 */
 function gameOver() {
   // TODO: Write your code here
-  
+  if (time > 0) {
+    let timeoutId = showUp();
+    return timeoutId;
+  } else {
+    let gameStopped = stopGame();
+    return gameStopped;
+  }
 }
 
 /**
@@ -98,8 +119,8 @@ function gameOver() {
 *
 */
 function showUp() {
-  let delay = 0; // TODO: Update so that it uses setDelay()
-  const hole = 0;  // TODO: Update so that it use chooseHole()
+  let delay = setDelay(difficulty); // TODO: Update so that it uses setDelay()
+  const hole = chooseHole(holes);  // TODO: Update so that it use chooseHole()
   return showAndHide(hole, delay);
 }
 
@@ -113,12 +134,13 @@ function showUp() {
 */
 function showAndHide(hole, delay){
   // TODO: call the toggleVisibility function so that it adds the 'show' class.
-  
+  toggleVisibility(hole);
   const timeoutID = setTimeout(() => {
     // TODO: call the toggleVisibility function so that it removes the 'show' class when the timer times out.
-    
+    toggleVisibility(hole);
     gameOver();
-  }, 0); // TODO: change the setTimeout delay to the one provided as a parameter
+  }, delay); // TODO: change the setTimeout delay to the one provided as a parameter
+  //console.log('showAndHide delay: ' + delay + '; timeoutID: ' + timeoutID);
   return timeoutID;
 }
 
@@ -130,7 +152,8 @@ function showAndHide(hole, delay){
 */
 function toggleVisibility(hole){
   // TODO: add hole.classList.toggle so that it adds or removes the 'show' class.
-  
+  hole.classList.toggle('show');
+  //console.log('hole class: ' + hole.classList);
   return hole;
 }
 
@@ -146,7 +169,8 @@ function toggleVisibility(hole){
 */
 function updateScore() {
   // TODO: Write your code here
-
+  points += 1;
+  score.textContent = points;
   return points;
 }
 
@@ -159,8 +183,8 @@ function updateScore() {
 */
 function clearScore() {
   // TODO: Write your code here
-  // points = 0;
-  // score.textContent = points;
+  points = 0;
+  score.textContent = points;
   return points;
 }
 
@@ -172,7 +196,10 @@ function clearScore() {
 function updateTimer() {
   // TODO: Write your code here.
   // hint: this code is provided to you in the instructions.
-  
+  if (time > 0){
+    time -= 1;
+    timerDisplay.textContent = time;
+  }
   return time;
 }
 
@@ -184,7 +211,7 @@ function updateTimer() {
 */
 function startTimer() {
   // TODO: Write your code here
-  // timer = setInterval(updateTimer, 1000);
+  timer = setInterval(updateTimer, 1000);
   return timer;
 }
 
@@ -198,7 +225,8 @@ function startTimer() {
 */
 function whack(event) {
   // TODO: Write your code here.
-  // call updateScore()
+  //console.log("whack!");
+  let points = updateScore();
   return points;
 }
 
@@ -209,7 +237,14 @@ function whack(event) {
 */
 function setEventListeners(){
   // TODO: Write your code here
-
+  /*
+  moles.forEach(
+    mole => mole.addEventListener('click', whack)
+  );
+  */
+  for (let mole of moles) {
+    mole.addEventListener("click", whack);
+  }
   return moles;
 }
 
@@ -231,8 +266,9 @@ function setDuration(duration) {
 *
 */
 function stopGame(){
-  // stopAudio(song);  //optional
+  stopAudio(song);  //optional
   clearInterval(timer);
+  //toggleStartButton(true); //disabling only because it fails US-03: startGame() and gameOver() › should call showUp() when clicking the start button
   return "game stopped";
 }
 
@@ -243,12 +279,53 @@ function stopGame(){
 *
 */
 function startGame(){
-  //setDuration(10);
-  //showUp();
+  //toggleStartButton(false); //disabling only because it fails US-03: startGame() and gameOver() › should call showUp() when clicking the start button
+  clearScore();
+  setEventListeners();
+  setDuration(10);
+  showUp();
+  startTimer();
+  startAudio();
   return "game started";
 }
 
 startButton.addEventListener("click", startGame);
+
+function toggleStartButton(visible) {
+  if (visible === true) {
+    startHeader.classList.add('visible');
+    startHeader.classList.remove('hidden');
+  } else {
+    startHeader.classList.remove('visible');
+    startHeader.classList.add('hidden');
+  }
+}
+
+function toggleVisibility(hole){
+  // TODO: add hole.classList.toggle so that it adds or removes the 'show' class.
+  hole.classList.toggle('show');
+  //console.log('hole class: ' + hole.classList);
+  return hole;
+}
+
+const song = new Audio("https://github.com/gabrielsanchez/erddiagram/blob/main/molesong.mp3?raw=true");
+
+function playAudio(audioObject) {
+  audioObject.play();
+}
+
+function loopAudio(audioObject) {
+  audioObject.loop = true;
+  playAudio(audioObject);
+}
+
+function stopAudio(audioObject) {
+  audioObject.pause();
+}
+
+function startAudio() {
+  playAudio(song);
+}
 
 
 // Please do not modify the code below.
