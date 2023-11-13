@@ -34,6 +34,21 @@ h2.visible {
   display: block;
 }
 
+label {
+  text-align: center;
+  font-size: 20px;
+  color: white;
+  -webkit-text-stroke: 1px black;
+}
+
+.input-group.hidden {
+  display: none;
+}
+
+.input-group.visible {
+  display: block;
+}
+
 #start {
     text-align: center;
     font-size: 20px;
@@ -111,6 +126,10 @@ h2.visible {
   }
   h2 {
     font-size: 40px;
+    color: purple;
+  }
+  label {
+    font-size: 30px;
     color: purple;
   }
   #start {

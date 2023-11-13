@@ -5,6 +5,8 @@ const startButton = document.querySelector('#start');
 const score = document.querySelector('#score'); // Use querySelector() to get the score element
 const timerDisplay = document.querySelector('#timer'); // use querySelector() to get the timer element.
 const startHeader = document.getElementById('start-header');
+const radios = document.querySelectorAll('.radio');
+const inputGroup = document.querySelector('.input-group');
 
 let time = 0;
 let timer;
@@ -237,14 +239,9 @@ function whack(event) {
 */
 function setEventListeners(){
   // TODO: Write your code here
-  /*
   moles.forEach(
     mole => mole.addEventListener('click', whack)
   );
-  */
-  for (let mole of moles) {
-    mole.addEventListener("click", whack);
-  }
   return moles;
 }
 
@@ -268,7 +265,7 @@ function setDuration(duration) {
 function stopGame(){
   stopAudio(song);  //optional
   clearInterval(timer);
-  //toggleStartButton(true); //disabling only because it fails US-03: startGame() and gameOver() › should call showUp() when clicking the start button
+  toggleStartButton(true); //disabling only because it fails US-03: startGame() and gameOver() › should call showUp() when clicking the start button
   return "game stopped";
 }
 
@@ -279,7 +276,7 @@ function stopGame(){
 *
 */
 function startGame(){
-  //toggleStartButton(false); //disabling only because it fails US-03: startGame() and gameOver() › should call showUp() when clicking the start button
+  toggleStartButton(false); //disabling only because it fails US-03: startGame() and gameOver() › should call showUp() when clicking the start button
   clearScore();
   setEventListeners();
   setDuration(10);
@@ -295,9 +292,13 @@ function toggleStartButton(visible) {
   if (visible === true) {
     startHeader.classList.add('visible');
     startHeader.classList.remove('hidden');
+    inputGroup.classList.add('visible');
+    inputGroup.classList.remove('hidden');
   } else {
     startHeader.classList.remove('visible');
     startHeader.classList.add('hidden');
+    inputGroup.classList.remove('visible');
+    inputGroup.classList.add('hidden');
   }
 }
 
@@ -307,6 +308,17 @@ function toggleVisibility(hole){
   //console.log('hole class: ' + hole.classList);
   return hole;
 }
+
+function radioHandler(event) {
+  console.log('radio button value: ' + event.target.value);
+  difficulty = event.target.value;
+  console.log('difficulty: ' + difficulty);
+}
+
+radios.forEach((radio) => {
+  console.log('radio tagName: ' + radio.tagName);
+  radio.addEventListener('click', radioHandler);
+});
 
 const song = new Audio("https://github.com/gabrielsanchez/erddiagram/blob/main/molesong.mp3?raw=true");
 
@@ -347,3 +359,4 @@ window.time = time;
 window.setDuration = setDuration;
 window.toggleVisibility = toggleVisibility;
 window.setEventListeners = setEventListeners;
+window.radioHandler = radioHandler;
